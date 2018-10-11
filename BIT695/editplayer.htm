@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Players</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Edit Players</h2><?php $id = $_GET['id'];?>
+            <p>Adjust details for player <?php echo $id;?> and click Update.</p>
+
+<?php
+$id = $_GET['id'];
+
+function select_other_players($connection) {
+global $id;
+$sql = "SELECT * FROM Players WHERE id='$id'";
+$result = $connection->query($sql);
+return $result;
+}
+
+include('conekt.php');
+$result = select_other_players($conn);
+if ($result->num_rows > 0) {
+
+	while ($row = $result->fetch_assoc()) {
+		$name = $row['name'];
+		$surname = $row['surname'];
+		$email = $row['email'];
+		$phone = $row['phone'];
+	}
+		} else echo '0 results';
+
+?>
+
+<form id="editform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+<input type="hidden" name="id" value="<?php echo $id;?>" />
+<table>
+<tr><td id="sright">First name </td>
+    <td id="sleft"><input type="text" name="u_name" size="15" maxlength="20" required placeholder="Name"
+	pattern="[A-z]+\D" title="Please type your first name only" value="<?php echo $name;?>"/></td>
+</tr>
+<tr><td id="sright">Family name </td>
+    <td id="sleft"><input type="text" name="u_surname" size="15" maxlength="20" required placeholder="Surname"
+	pattern="[A-z]+\D" title="Please type your last name only" value="<?php echo $surname;?>"/></td>
+</tr>
+<tr><td id="sright">Email </td>
+    <td id="sleft"><input type="email" name="u_email" size="30" maxlength="50" required placeholder="Email address"
+	title="Please type your full email address with no spaces" value="<?php echo $email;?>"/></td>
+</tr>
+<tr><td id="sright">Phone </td>
+    <td id="sleft"><input type="tel" name="u_phone" size="15" maxlength="15" required placeholder="Landline or mobile"
+	pattern="[0-9]{7,}" title="Enter either a landline or mobile number (no spaces)" value="<?php echo $phone;?>"/></td>
+</tr>
+</table>
+<input type="submit" name="submit3" value="Update" />  
+</form>
+
+<?php
+if(isset($_POST['submit3'])){
+$id = $_POST['id'];
+$u_name = $_POST['u_name'];
+$u_surname = $_POST['u_surname'];
+$u_email = $_POST['u_email'];
+$u_phone = $_POST['u_phone'];
+
+$u_stmt = $conn->prepare("UPDATE Players SET
+ name=?, surname=?, email=?, phone=?
+ WHERE id=?");
+$u_stmt->bind_param("sssss", $u_name, $u_surname, $u_email, $u_phone, $id);
+$u_stmt->execute();
+echo "<center>Record updated successfully</center>";
+$u_stmt->close();
+
+$conn->close();
+
+header('Location: players.htm#seek' );
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

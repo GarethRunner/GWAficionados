@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Players</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Players</h2>
+            <p>Please submit your details below to be added to the database.</p>
+
+<hr/>
+<h1>Submit new Player Record</h1>
+
+<?php
+// define variables and set to empty values
+$nameErr = $surnameErr = $emailErr = $phoneErr = "";
+$id = $name = $surname = $email = $phone = "";
+?>
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = test_input($_POST["name"]);
+      // check if name only contains letters and whitespace
+    if (!preg_match("/^[a-zA-Z ]*$/",$name)) {
+      $nameErr = "Only letters and white space allowed";
+    }
+
+    $surname = test_input($_POST["surname"]);
+      // check if surname only contains letters and whitespace
+    if (!preg_match("/^[a-zA-Z ]*$/",$surname)) {
+      $surnameErr = "Only letters and white space allowed";
+    }
+
+    $email = test_input($_POST["email"]);
+      // check if e-mail address is well-formed
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $emailErr = "Invalid email format";
+    }
+
+    $phone = test_input($_POST["phone"]);
+}
+
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+include('conekt.php');
+?>
+
+<form id="loadform" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>#seek">
+
+<p><span class="error">Note: all fields must be filled in</span></p>
+
+<table>
+<tr><td id="sright">First name </td>
+    <td id="sleft"><input type="text" name="name" size="15" maxlength="20" required placeholder="Name"
+	pattern="[A-z]+\D" title="Please type your first name only" value="<?php echo $name;?>"/></td>
+</tr>
+<tr><td id="sright">Family name </td>
+    <td id="sleft"><input type="text" name="surname" size="15" maxlength="20" required placeholder="Surname"
+	pattern="[A-z]+\D" title="Please type your last name only" value="<?php echo $surname;?>"/></td>
+</tr>
+<tr><td id="sright">Email </td>
+    <td id="sleft"><input type="email" name="email" size="30" maxlength="50" required placeholder="Email address"
+	title="Please type your full email address with no spaces" value="<?php echo $email;?>"/></td>
+</tr>
+<tr><td id="sright">Phone </td>
+    <td id="sleft"><input type="tel" name="phone" size="15" maxlength="15" required placeholder="Landline or mobile"
+	pattern="[0-9]{7,}" title="Enter either a landline or mobile number (no spaces)" value="<?php echo $phone;?>"/></td>
+</tr>
+</table>
+
+<input type="submit" name="submit1" value="Submit"/>
+
+</form>
+
+<?php
+if(isset($_POST['submit1'])){
+
+// prepare and bind
+$stmt = $conn->prepare("INSERT INTO Players (name, surname, email, phone) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $name, $surname, $email, $phone);
+$stmt->execute();
+echo "<center>New record created successfully</center>";
+$stmt->close();
+$conn->close();
+}
+?>
+
+<hr/>
+<h1 id="seek">Search</h1>
+
+<form id="searchform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>#seek" method="post">  
+Type an ID, name, email, or phone to search for: <input type="text" name="term" />  
+<input type="submit" name="submit2" value="Search" />  
+</form> 
+
+<?php
+if(isset($_POST['submit2'])){
+function select_players($connection) {
+$term=$_POST['term'];
+$sql = "SELECT Players.*, Board_games.game, Board_games.position, Board_games.event
+ FROM Players
+ LEFT JOIN Board_games
+ ON Players.id = Board_games.id
+ WHERE Players.id LIKE '%".$term."%'
+ OR name LIKE '%".$term."%'
+ OR surname LIKE '%".$term."%'
+ OR email LIKE '%".$term."%'
+ OR phone LIKE '%".$term."%'";
+$result = $connection->query($sql);
+return $result;
+}
+
+include('conekt.php');
+$result = select_players($conn);
+if ($result->num_rows > 0) {
+
+	echo "<p></p><table>";
+	while ($row = $result->fetch_assoc()) {
+		echo '<tr><td>' . $row['id'];
+		echo '</td><td>' . $row['name'];
+		echo '</td><td>' . $row['surname'];
+		echo '</td><td>' . $row['email'];
+		echo '</td><td>' . $row['phone'];
+		echo '</td><td><a href="editplayer.htm?id=' . $row['id'] . '">Edit Player</a>';
+		echo '</td></tr>';
+		echo '<tr><td colspan="2" id="scell">Game, Position, and Event:';
+		echo '</td><td>' . $row['game'];
+		echo '</td><td>' . $row['position'];
+		echo '</td><td>' . $row['event'];
+		echo '</td><td><a href="deleteplayer.php?id=' . $row['id'] . '">Delete Player</a>';
+		echo '</td></tr>';
+	}
+	echo '</table>';
+
+	} else echo '0 results';
+	}
+$conn->close();
+?>
+
+<hr/>
+<p>Current Player List:</p>
+
+<?php
+include('conekt.php');
+
+$sql = "SELECT * FROM Players";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+        echo "Member ID: " . $row["id"]. " - Name: " . $row["name"]. " " . $row["surname"]. " - Contact: " . $row["email"]. " - " . $row["phone"]. "<br>";
+    }
+} else {
+    echo "0 results";
+}
+
+$conn->close();
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>
