@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Scores</title>
+</head>
+
+<body>
+    <header>
+		<?php include 'header.php';?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Scores</h2>
+            <p>Scores | <a href="newscores.htm" id="new">Add scores</a></p>
+			
+<?php
+include('conekt.php');
+
+$sql = "SELECT * FROM Scoring";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+	echo "<p></p><table>";
+
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+		echo '<tr><td>' . $row['name'];
+		echo '</td><td>' . $row['game'];
+		echo '</td><td>' . $row['score'];
+		echo '</td><td>' . $row['event'];
+		echo '</td><td><a href="editscore.htm?sid=' . $row['sid'] . '">Edit Score</a>';
+		echo '</td><td><a href="deletescore.php?sid=' . $row['sid'] . '">Delete Score</a>';
+		echo '</td></tr>';
+    }
+	echo '</table>';
+} else {
+    echo "0 results";
+}
+
+$conn->close();
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

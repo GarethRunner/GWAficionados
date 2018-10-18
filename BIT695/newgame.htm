@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Games and Players</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Set up a new game</h2>
+            <p>Type a game name and assign an owner.</p>
+
+<?php
+// define variables and set to empty values
+$game = $gameErr = "";
+?>
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $game = test_input($_POST["game"]);
+      // check if game only contains letters and whitespace
+    if (!preg_match("/^[a-zA-Z ]*$/",$game)) {
+      $gameErr = "Only letters and white space allowed";
+    }
+}
+
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+include('conekt.php');
+
+$sql = "SELECT id, concat(name,' ',surname) as owner FROM Players";
+$result = $conn->query($sql);
+?>
+
+<form id="newform" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+
+<table>
+<tr>
+<tr><td id="sright">New Game </td>
+    <td id="sleft"><input type="text" name="game" size="15" maxlength="20" required placeholder="Game"
+	pattern="[A-z ]+\D" title="Type the name of the game" value="<?php echo $game;?>"/></td>
+<td id="sright">Owner </td>
+    <td id="sleft">
+	<?php
+	echo '<select name="owner">';
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing names.
+    while($row = $result->fetch_assoc()) {
+
+		echo "<option value='$row[id]'>".$row['owner']."</option>";
+    }
+	echo '</select>';
+	?>
+	</td>
+</tr>
+</table>
+
+<input type="submit" name="submit6" value="Submit"/>
+
+</form>
+
+<?php
+if(isset($_POST['submit6'])){
+
+// prepare and bind
+$stmt = $conn->prepare("INSERT INTO Board_games (game, id, owner) VALUES (?, ?, ?)");
+$stmt->bind_param("sss", $game, $id, $owner);
+$stmt->execute();
+$stmt->close();
+$conn->close();
+// cannot find the error in this code but new record doesn't create.
+// same code works fine on other screen.
+header('Location: games.htm#new');
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

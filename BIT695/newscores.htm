@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Scores</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Load new scores</h2>
+            <p>Choose a player, game, and event, and add the new score.</p>
+
+<?php
+// define variables and set to empty values
+$score = $scoreErr = "";
+?>
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $score = test_input($_POST["score"]);
+      // check if score only contains numbers
+    if (!preg_match("/^[0-9]*$/",$score)) {
+      $scoreErr = "Only numbers allowed";
+    }
+}
+
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+include('conekt.php');
+
+$sql1 = "SELECT id, name FROM Players";
+$result1 = $conn->query($sql1);
+$sql2 = "SELECT tid, game FROM Board_games";
+$result2 = $conn->query($sql2);
+$sql3 = "SELECT eid, event FROM Event_schedule";
+$result3 = $conn->query($sql3);
+?>
+
+<form id="newform" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+
+<table>
+<tr>
+<td id="sright">Player </td>
+    <td id="sleft">
+	<?php
+	echo '<select name="name">';
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing names.
+	// list has correct number of rows but rows are all blank!
+    while($row = $result1->fetch_assoc()) {
+		echo "<option value='$row[id]'>".$row['name']."</option>";
+    }
+	echo '</select>';
+	?>
+	</td>
+<td id="sright">Game </td>
+    <td id="sleft">
+	<?php
+	echo '<select name="game">';
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing names.
+    while($row = $result2->fetch_assoc()) {
+		echo "<option value='$row[tid]'>".$row['game']."</option>";
+    }
+	echo '</select>';
+	?>
+	</td>
+<td id="sright">Event </td>
+    <td id="sleft">
+	<?php
+	echo '<select name="event">';
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing names.
+    while($row = $result3->fetch_assoc()) {
+		echo "<option value='$row[eid]'>".$row['event']."</option>";
+    }
+	echo '</select>';
+	?>
+	</td>
+<td id="sright">New Score </td>
+    <td id="sleft"><input type="number" name="score" size="4" min="1" max="99" required placeholder="Score"
+	pattern="[0-9]" title="Input a score between 1 and 99" value="<?php echo $score;?>"/></td>
+</tr>
+</table>
+
+<input type="submit" name="submit7" value="Submit"/>
+
+</form>
+
+<?php
+if(isset($_POST['submit7'])){
+
+// prepare and bind
+$stmt = $conn->prepare("INSERT INTO Scoring (id, name, tid, game, eid, event, score)
+ VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssss", $id, $name, $tid, $game, $eid, $event, $score);
+$stmt->execute();
+$stmt->close();
+$conn->close();
+// cannot find the error in this code but new record doesn't create.
+// same code works fine on player screen.
+header('Location: scores.htm#new');
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

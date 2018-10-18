@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Games and Players</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Register a new player</h2>
+            <p>Choose a game and assign a player.</p>
+
+<?php
+include('conekt.php');
+$sql1 = "SELECT game FROM Board_games";
+$result1 = $conn->query($sql1);
+$sql2 = "SELECT name FROM Players";
+$result2 = $conn->query($sql2);
+?>
+
+<form id="regform" method="post">
+
+<table>
+<tr>
+<td id="sright">Game </td>
+    <td id="sleft">
+	<select name="assigned_game">
+	<?php
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing games.
+    while($row1 = $result1->fetch_assoc()) {
+
+		echo "<option value='$row1[game]'>".$row1['game']."</option>";
+        } ?>
+	</select></td>
+<td id="sright">Name </td>
+    <td id="sleft">
+	<select name="assigned_name">
+	<?php
+	echo '<option value="">Select...</option>';
+	// should produce dropdown selection of existing names.
+    while($row2 = $result2->fetch_assoc()) {
+
+		echo "<option value='$row2[name]'>".$row2['name']."</option>";
+        } ?>
+	</select></td>
+</tr>
+</table>
+
+<input type="submit" name="submit5" value="Submit"/>
+
+</form>
+
+<?php
+if(isset($_POST['submit5'])){
+
+// prepare and bind
+$stmt = $conn->prepare("INSERT INTO Games_assigned (game, name) VALUES (?, ?)");
+$stmt->bind_param("ss", $game, $name);
+$stmt->execute();
+$stmt->close();
+$conn->close();
+// cannot find the error in this code but new record doesn't create.
+// Same code works fine on other screen...
+header('Location: games.htm#reg' );
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

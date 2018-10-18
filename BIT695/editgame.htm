@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Games and Owners</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Edit Game Info</h2>
+            <p>Change the game owner and click Update.</p>
+
+<?php
+$tid = $_GET['tid'];
+
+function select_other_owners($connection) {
+global $tid;
+$sql = "SELECT * FROM Board_games WHERE tid='$tid'";
+$result = $connection->query($sql);
+return $result;
+}
+
+include('conekt.php');
+$result = select_other_owners($conn);
+if ($result->num_rows > 0) {
+
+	while ($row = $result->fetch_assoc()) {
+		$game = $row['game'];
+		$owner = $row['owner'];
+	}
+		} else echo '0 results';
+
+?>
+
+<form id="editform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+<input type="hidden" name="tid" value="<?php echo $tid;?>" />
+<table>
+<tr><td id="sright">Game:</td>
+    <td id="sleft"><?php echo $game;?></td>
+</tr>
+<tr><td id="sright">Owner </td>
+    <td id="sleft"><input type="text" name="u_owner" size="16" maxlength="30" required placeholder="Owner"
+	title="Choose the owner from the player list" value="<?php echo $owner;?>"/></td>
+</tr>
+</table>
+<input type="submit" name="submit4" value="Update" />  
+</form>
+
+<?php
+if(isset($_POST['submit4'])){
+$tid = $_POST['tid'];
+$u_owner = $_POST['u_owner'];
+
+$u_stmt = $conn->prepare("UPDATE Board_games SET owner=? WHERE tid=?");
+$u_stmt->bind_param("ss", $u_owner, $tid);
+$u_stmt->execute();
+$u_stmt->close();
+
+$conn->close();
+
+header('Location: games.htm#seek' );
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

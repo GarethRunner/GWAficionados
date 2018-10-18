@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Events</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Edit Event</h2><?php $eid = $_GET['eid'];?>
+            <p>Adjust details for event <?php echo $eid;?> and click Update.</p>
+
+<?php
+$eid = $_GET['eid'];
+
+function select_other_events($connection) {
+global $eid;
+$sql = "SELECT * FROM Event_schedule WHERE eid='$eid'";
+$result = $connection->query($sql);
+return $result;
+}
+
+include('conekt.php');
+$result = select_other_events($conn);
+if ($result->num_rows > 0) {
+
+	while ($row = $result->fetch_assoc()) {
+		$event = $row['event'];
+		$eventdate = $row['eventdate'];
+		$venue = $row['venue'];
+	}
+		} else echo '0 results';
+
+?>
+
+<form id="editform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+<input type="hidden" name="eid" value="<?php echo $eid;?>" />
+<table>
+<tr><td id="sright">Event </td>
+    <td id="sleft"><input type="text" name="u_event" size="16" maxlength="30" required placeholder="Event"
+	title="Please type the event name" value="<?php echo $event;?>"/></td>
+</tr>
+<tr><td id="sright">Event Date </td>
+    <td id="sleft"><input type="date" name="u_eventdate" size="10" maxlength="10" required placeholder="Event Date"
+	title="Please type the event date" value="<?php echo $eventdate;?>"/></td>
+</tr>
+<tr><td id="sright">Venue </td>
+    <td id="sleft"><input type="text" name="u_venue" size="16" maxlength="30" required placeholder="Venue"
+	title="Please type the venue name" value="<?php echo $venue;?>"/></td>
+</tr>
+</table>
+<input type="submit" name="submit3" value="Update" />  
+</form>
+
+<?php
+if(isset($_POST['submit3'])){
+$eid = $_POST['eid'];
+$u_event = $_POST['u_event'];
+$u_eventdate = $_POST['u_eventdate'];
+$u_venue = $_POST['u_venue'];
+
+$u_stmt = $conn->prepare("UPDATE Event_schedule SET
+ event=?, eventdate=?, venue=?
+ WHERE eid=?");
+$u_stmt->bind_param("ssss", $u_event, $u_eventdate, $u_venue, $eid);
+$u_stmt->execute();
+echo "<center>Record updated successfully</center>";
+$u_stmt->close();
+
+$conn->close();
+
+header('Location: events.htm#seek' );
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

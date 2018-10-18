@@ -9,7 +9,7 @@
 <body>
     <header>
 		<?php include("header.php");?>
-    </header>
+</header>
     <main>
         <section class="content_pages">
             <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
@@ -102,7 +102,7 @@ $conn->close();
 <h1 id="seek">Search</h1>
 
 <form id="searchform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>#seek" method="post">  
-Type an ID, name, email, or phone to search for: <input type="text" name="term" />  
+To edit or delete player records, first type <br>an ID, name, email, or phone to search for: <input type="text" name="term" />  
 <input type="submit" name="submit2" value="Search" />  
 </form> 
 
@@ -110,10 +110,8 @@ Type an ID, name, email, or phone to search for: <input type="text" name="term" 
 if(isset($_POST['submit2'])){
 function select_players($connection) {
 $term=$_POST['term'];
-$sql = "SELECT Players.*, Board_games.game, Board_games.position, Board_games.event
+$sql = "SELECT Players.*
  FROM Players
- LEFT JOIN Board_games
- ON Players.id = Board_games.id
  WHERE Players.id LIKE '%".$term."%'
  OR name LIKE '%".$term."%'
  OR surname LIKE '%".$term."%'
@@ -136,7 +134,7 @@ if ($result->num_rows > 0) {
 		echo '</td><td>' . $row['phone'];
 		echo '</td><td><a href="editplayer.htm?id=' . $row['id'] . '">Edit Player</a>';
 		echo '</td></tr>';
-		echo '<tr><td colspan="2" id="scell">Game, Position, and Event:';
+		echo '<tr><td colspan="2" id="scell">';
 		echo '</td><td>' . $row['game'];
 		echo '</td><td>' . $row['position'];
 		echo '</td><td>' . $row['event'];
@@ -155,7 +153,6 @@ $conn->close();
 
 <?php
 include('conekt.php');
-
 $sql = "SELECT * FROM Players";
 $result = $conn->query($sql);
 

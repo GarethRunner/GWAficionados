@@ -14,20 +14,54 @@
         <section class="content_pages">
             <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
             <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
-            <h2 style="padding-top: 70px">Games</h2>
-            <p>Database of games and event results:</p>
+            <h2 style="padding-top: 70px">~ Games ~<br>Owners & Players</h2>
+            <p>Games (and their owners) | <a href="newgame.htm" id="new">Set up new game</a></p>
 			
 <?php
 include('conekt.php');
 
-$sql = "SELECT * FROM  Board_games";
+$sql = "SELECT * FROM Board_games ORDER BY Board_games.game ASC";
+// use later: $sql = "SELECT concat(name,' ',surname) as owner FROM Players";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
+	echo "<p></p><table>";
+
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "Player " . $row["id"]. " holds " . $row["position"]. " Position in " . $row["game"]. " at: " . $row["event"]. " " . $row["eventdate"]. "<br>";
+		echo '<tr><td>' . $row['game'];
+		echo '</td><td>(' . $row['owner'];
+		echo ')</td><td><a href="editgame.htm?tid=' . $row['tid'] . '">Change Game Owner</a>';
+		echo '</td><td><a href="deletegame.php?tid=' . $row['tid'] . '">Delete Game</a>';
+		echo '</td></tr>';
     }
+	echo '</table>';
+} else {
+    echo "0 results";
+}
+
+$conn->close();
+?>
+
+            <p><br>Registered players | <a href="registerplayer.htm" id="reg">Register new player</a></p>
+			
+<?php
+include('conekt.php');
+
+$sql = "SELECT * FROM Games_assigned ORDER BY Games_assigned.game ASC";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+	echo "<p></p><table>";
+
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+		echo '<tr><td>' . $row['game'];
+		echo '</td><td>' . $row['name'];
+		echo '</td><td><a href="deleteassigned.php?gid=' . $row['gid'] . '">Unassign Player</a>';
+		echo '</td></tr>';
+    }
+	echo '</table>';
 } else {
     echo "0 results";
 }

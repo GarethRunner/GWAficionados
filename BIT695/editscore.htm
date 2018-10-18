@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>Scores</title>
+</head>
+
+<body>
+    <header>
+		<?php include("header.php");?>
+    </header>
+    <main>
+        <section class="content_pages">
+            <img style="padding-top: 50px" id="left_semcircle" src="half_circle_left.gif" alt="h2_semicircle_image">
+            <img style="padding-top: 50px" id="right_semcircle" src="half_circle_right.gif" alt="h2_semicircle_image">
+            <h2 style="padding-top: 70px">Edit Scores</h2><?php $sid = $_GET['sid'];?>
+            <p>Adjust record <?php echo $sid;?> and click Update.</p>
+
+<?php
+$sid = $_GET['sid'];
+
+function select_other_owners($connection) {
+global $sid;
+$sql = "SELECT * FROM Scoring WHERE sid='$sid'";
+$result = $connection->query($sql);
+return $result;
+}
+
+include('conekt.php');
+$result = select_other_owners($conn);
+if ($result->num_rows > 0) {
+
+	while ($row = $result->fetch_assoc()) {
+		$name = $row['name'];
+		$game = $row['game'];
+		$score = $row['score'];
+		$event = $row['event'];
+	}
+		} else echo '0 results';
+
+?>
+
+<form id="editform" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+<input type="hidden" name="sid" value="<?php echo $sid;?>" />
+<table>
+<tr><td id="sright">Name:</td>
+    <td id="sleft"><?php echo $name;?></td>
+<td id="sright">Game:</td>
+    <td id="sleft"><?php echo $game;?></td>
+<td id="sright">Event:</td>
+    <td id="sleft"><?php echo $event;?></td>
+<td id="sright">Score </td>
+    <td id="sleft"><input type="number" name="u_score" size="4" min="1" max="99" required placeholder="Score"
+	pattern="[0-9]" title="Adjust the score (1-99)" value="<?php echo $score;?>"/></td>
+</tr>
+</table>
+<input type="submit" name="submit5" value="Update" />  
+</form>
+
+<?php
+if(isset($_POST['submit5'])){
+$sid = $_POST['sid'];
+$u_score = $_POST['u_score'];
+
+$u_stmt = $conn->prepare("UPDATE Scoring SET score=? WHERE sid=?");
+$u_stmt->bind_param("ss", $u_score, $sid);
+$u_stmt->execute();
+$u_stmt->close();
+
+$conn->close();
+
+header('Location: scores.htm#seek' );
+}
+?>
+
+        </section>
+    </main>
+    <footer>
+		<?php include 'footer.php';?>
+    </footer>
+</body>
+
+</html>

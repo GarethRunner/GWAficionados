@@ -20,44 +20,57 @@
                     <td colspan="3">Weekly Games</td>
                 </tr>
                 <tr>
-                    <td scope="col">Weekday</td>
-                    <td scope="col">Time</th>
-                    <td scope="col">Location</th>
+                    <td colspan="3"></td>
                 </tr>
                 <tr>
-                    <td>Monday</td>
-                    <td>no game</td>
-                    <td>no game</td>
-                </tr>
-                <tr class="set_date_input" onclick="tuesday()">
-                    <td id="tgame_date">Tuesday</td>
-                    <td id="tgame_time">7:00pm</td>
-                    <td id="tgame_room">Clubs and Socs room 2.14</td>
+                    <td>Tuesday</td>
+                    <td>7:00pm</td>
+                    <td>Clubs and Socs room 2.14</td>
                 </tr>
                 <tr>
-                    <td>Wednesday</td>
-                    <td>no game</td>
-                    <td>no game</td>
+                    <td>Friday</td>
+                    <td>8:00pm</td>
+                    <td>Cavern Tavern</td>
                 </tr>
                 <tr>
-                    <td>Thursday</td>
-                    <td>no game</td>
-                    <td>no game</td>
-                </tr>
-                <tr class="set_date_input" onclick="friday()">
-                    <td id="fgame_date">Friday</td>
-                    <td id="fgame_time">8:00pm</td>
-                    <td id="fgame_room">Cavern Tavern</td>
+                    <td colspan="3"></td>
                 </tr>
                 <tr>
-                    <td>Saturday</td>
-                    <td>no game</td>
-                    <td>no game</td>
+                    <td colspan="3">Annual Events</td>
                 </tr>
                 <tr>
-                    <td>Sunday</td>
-                    <td>no game</td>
-                    <td>no game</td>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+
+<?php
+include('conekt.php');
+
+$sql = "SELECT * FROM Event_schedule";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+	echo "<p></p><table>";
+
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+		echo '<tr><td>' . $row['event'];
+		echo '</td><td>' . $row['eventdate'];
+		echo '</td><td>' . $row['venue'];
+		echo '</td><td><a href="editevent.htm?eid=' . $row['eid'] . '">Edit Event</a>';
+		echo '</td><td><a href="deleteevent.php?eid=' . $row['eid'] . '">Delete Event</a>';
+		echo '</td></tr>';
+    }
+	echo '</table>';
+} else {
+    echo "0 results";
+}
+
+$conn->close();
+?>
+
+                    </td>
                 </tr>
             </table>
         </section>

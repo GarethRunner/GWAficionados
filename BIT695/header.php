@@ -10,10 +10,11 @@
         <nav id="follow_me">
             <ul>
                 <li><a href="index.htm">Home</a></li>
-                <li><a href="events.htm">Calendar</a></li>
                 <li><a href="about.htm">About Us</a></li>
                 <li><a href="players.htm">Players</a></li>
                 <li><a href="games.htm">Games</a></li>
+                <li><a href="events.htm">Events</a></li>
+                <li><a href="scores.htm">Scores</a></li>
 			</ul>
         </nav>
 </body>
